@@ -9,6 +9,8 @@
 	 * Author URI: https://www.albinsoft.es/
 	 **/
 
+	if(!defined('ABSPATH')) exit;
+
 class FileRenameReplace {
 
 	var $menu_id = null;
@@ -36,7 +38,8 @@ class FileRenameReplace {
 	}
 
 	public function media_row_action($actions, $post) {
-		$url = admin_url('tools.php?page=filerenamereplace&iid='.$post->ID); // wp_nonce_url(, 'filerenamereplace');
+	//	$url = wp_nonce_url(admin_url('tools.php?page=filerenamereplace&iid='.$post->ID), 'filerenamereplace');
+		$url = admin_url('tools.php?page=filerenamereplace&iid='.$post->ID);
 		$actions['filerenamereplace'] = '<a href="' . esc_url( $url ) . '" title="Replace/Rename">Replace/Rename</a>';
 		return $actions;
 	}
@@ -48,7 +51,7 @@ class FileRenameReplace {
 		check_admin_referer( 'bulk-media' );
 
 		$iid = implode(chr(44), array_map('intval', $_REQUEST['media']));
-		$url = add_query_arg('_wpnonce', wp_create_nonce('filerenamereplace'), admin_url('admin.php?page=filerenamereplace&iid='.$iid) );
+	//	$url = add_query_arg('_wpnonce', wp_create_nonce('filerenamereplace'), admin_url('admin.php?page=filerenamereplace&iid='.$iid) );
 		$url = admin_url('admin.php?page=filerenamereplace&iid='.$iid);
 		wp_redirect($url);
 		exit();
@@ -131,6 +134,20 @@ class FileRenameReplace {
 	static public function get_filename($path) {
 		return pathinfo($path, PATHINFO_FILENAME);
 	}
+
+
+	static function sanitize_date_japan($text) {
+		if(1===preg_match('|^\d{4}-\d{2}-\d{2}( \d{2}:\d{2}:\d{2})?$|', $text))
+			 return $text;
+		return null;
+	}
+
+
+	static function sanitize_file_path($text) {
+		if(1===preg_match('|^([\w\-]+/?)+$|', $text))
+			 return $text;
+		return null;
+	}
 }
 
 add_action( 'init', 'FileRenameReplace' );
@@ -138,5 +155,6 @@ add_action( 'init', 'FileRenameReplace' );
 function FileRenameReplace() {
 	new FileRenameReplace();
 }
+
 
 ?>
